@@ -1,3 +1,6 @@
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -5,8 +8,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
-#include <Camera.h>
-#include <Mesh.h>
+#include <ErenGL/Camera.h>
+#include <ErenGL/Mesh.h>
 
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
@@ -166,12 +169,28 @@ int main()
     camera.updateProjectionMatrix(); });
   glfwSetCursorPosCallback(window, [](GLFWwindow *window, GLdouble x, GLdouble y)
                            { camera.handleMouse(x, y); });
+  glfwSetScrollCallback(window, [](GLFWwindow *window, GLdouble xoffset, GLdouble yoffset)
+                        { camera.handleScroll(yoffset); });
 
   std::vector<glm::vec3> cubePositions = {
       glm::vec3(0.0f, 1.0f, 0.0f),
       glm::vec3(0.0f, 0.0f, 0.0f),
       glm::vec3(1.0f, 0.0f, 0.0f),
   };
+
+  /*
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+  */
+
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO &io = ImGui::GetIO();
+  (void)io;
+  ImGui::StyleColorsDark();
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init("#version 330");
 
   while (!glfwWindowShouldClose(window))
   {
@@ -180,6 +199,10 @@ int main()
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
     glUseProgram(shader_programme);
 
     for (const glm::vec3 &position : cubePositions)
@@ -187,6 +210,13 @@ int main()
       Mesh mesh(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices));
       mesh.render(shader_programme, camera);
     }
+
+    ImGui::Begin("Hello, world!");
+    ImGui::Text("This is some useful text.");
+    ImGui::End();
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -198,10 +228,15 @@ int main()
     }
   }
 
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
+  ImGui::DestroyContext();
+
   glDeleteVertexArrays(1, &cubeVAO);
   glDeleteBuffers(1, &cubeEBO);
   glDeleteBuffers(1, &cubeVBO);
   glDeleteProgram(shader_programme);
+  glDisable(GL_DEPTH_TEST);
 
   glfwTerminate();
   return 0;

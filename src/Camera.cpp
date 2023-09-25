@@ -4,141 +4,148 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-#include <Camera.h>
+#include <ErenGL/Camera.h>
 
 Camera::Camera()
 {
-  this->cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
-  this->cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-  this->cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-  this->view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-  this->projection = glm::perspective(glm::radians(fov), (float)this->SCR_WIDTH / (float)this->SCR_HEIGHT, 0.1f, 100.0f);
+  cameraPos = glm::vec3(0.0f, 0.0f, 0.0f);
+  cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+  cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+  view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+  projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
   std::cout << "Camera created" << std::endl;
 }
 
-void Camera::setWindow(GLFWwindow *window)
+void Camera::setWindow(GLFWwindow *_window)
 {
-  this->window = window;
+  window = _window;
 }
 
 void Camera::setScreenSize(int width, int height)
 {
-  this->SCR_WIDTH = width;
-  this->SCR_HEIGHT = height;
+  SCR_WIDTH = width;
+  SCR_HEIGHT = height;
   std::cout << "Camera screen size set: " << width << "x" << height << std::endl;
 }
 
-void Camera::setFov(float fov)
+void Camera::setFov(float _fov)
 {
-  this->fov = fov;
+  fov = _fov;
+  updateViewMatrix();
 }
 
 void Camera::handleInput()
 {
-  this->currentFrame = glfwGetTime();
-  this->deltaTime = this->currentFrame - this->lastFrame;
-  this->lastFrame = this->currentFrame;
+  currentFrame = glfwGetTime();
+  deltaTime = currentFrame - lastFrame;
+  lastFrame = currentFrame;
 
-  if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
   {
-    this->cameraPos += (this->cameraSpeed * this->deltaTime) * this->cameraFront;
-    this->updateViewMatrix();
+    cameraPos += (cameraSpeed * deltaTime) * cameraFront;
+    updateViewMatrix();
   }
 
-  if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
   {
-    this->cameraPos -= (this->cameraSpeed * this->deltaTime) * this->cameraFront;
-    this->updateViewMatrix();
+    cameraPos -= (cameraSpeed * deltaTime) * cameraFront;
+    updateViewMatrix();
   }
 
-  if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
   {
-    this->cameraPos -= glm::normalize(glm::cross(this->cameraFront, this->cameraUp)) * (this->cameraSpeed * this->deltaTime);
-    this->updateViewMatrix();
+    cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * (cameraSpeed * deltaTime);
+    updateViewMatrix();
   }
 
-  if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
   {
-    this->cameraPos += glm::normalize(glm::cross(this->cameraFront, this->cameraUp)) * (this->cameraSpeed * this->deltaTime);
-    this->updateViewMatrix();
+    cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * (cameraSpeed * deltaTime);
+    updateViewMatrix();
   }
 
-  if (glfwGetKey(this->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
   {
-    this->setMouseVisible(!this->isMouseVisible());
-    glfwSetInputMode(window, GLFW_CURSOR, this->isMouseVisible() ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
-}
 
-void Camera::updateViewMatrix()
-{
-  this->view = glm::lookAt(this->cameraPos, this->cameraPos + this->cameraFront, this->cameraUp);
-}
-
-void Camera::updateProjectionMatrix()
-{
-  this->projection = glm::perspective(glm::radians(fov), (float)this->SCR_WIDTH / (float)this->SCR_HEIGHT, 0.1f, 100.0f);
-}
-
-void Camera::setMouseVisible(bool visible)
-{
-  this->mouseVisible = visible;
-}
-
-bool Camera::isMouseVisible()
-{
-  return this->mouseVisible;
-}
-
-glm::mat4 Camera::getViewMatrix()
-{
-  return this->view;
-}
-
-glm::mat4 Camera::getProjectionMatrix()
-{
-  return this->projection;
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+  {
+    cameraSpeed = 5.0f;
+  }
+  else
+  {
+    cameraSpeed = 2.5f;
+  }
 }
 
 void Camera::handleMouse(GLdouble xpos, GLdouble ypos)
 {
-  if (this->mouseVisible)
-    return;
-
-  if (this->firstMouse)
+  if (firstMouse)
   {
-    this->lastX = xpos;
-    this->lastY = ypos;
-    this->firstMouse = false;
+    lastX = xpos;
+    lastY = ypos;
+    firstMouse = false;
   }
 
-  float xoffset = xpos - this->lastX;
-  float yoffset = this->lastY - ypos;
-  this->lastX = xpos;
-  this->lastY = ypos;
+  float xoffset = xpos - lastX;
+  float yoffset = lastY - ypos;
+  lastX = xpos;
+  lastY = ypos;
 
-  xoffset *= this->sensitivity;
-  yoffset *= this->sensitivity;
+  xoffset *= sensitivity;
+  yoffset *= sensitivity;
 
-  this->yaw += xoffset;
-  this->pitch += yoffset;
+  yaw += xoffset;
+  pitch += yoffset;
 
-  if (this->pitch > 89.0f)
-    this->pitch = 89.0f;
-  if (this->pitch < -89.0f)
-    this->pitch = -89.0f;
+  if (pitch > 89.0f)
+    pitch = 89.0f;
+  if (pitch < -89.0f)
+    pitch = -89.0f;
 
   glm::vec3 direction;
-  direction.x = cos(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
-  direction.y = sin(glm::radians(this->pitch));
-  direction.z = sin(glm::radians(this->yaw)) * cos(glm::radians(this->pitch));
+  direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+  direction.y = sin(glm::radians(pitch));
+  direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-  this->cameraFront = glm::normalize(direction);
-  this->updateViewMatrix();
+  cameraFront = glm::normalize(direction);
+  updateViewMatrix();
+}
+
+void Camera::handleScroll(GLdouble yoffset)
+{
+  if (fov >= minFov && fov <= maxFov)
+    fov -= yoffset * 1.5f;
+  if (fov <= minFov)
+    fov = minFov;
+  if (fov >= maxFov)
+    fov = maxFov;
+  updateProjectionMatrix();
+}
+
+void Camera::updateViewMatrix()
+{
+  view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+}
+
+void Camera::updateProjectionMatrix()
+{
+  projection = glm::perspective(glm::radians(fov), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+}
+
+glm::mat4 Camera::getViewMatrix()
+{
+  return view;
+}
+
+glm::mat4 Camera::getProjectionMatrix()
+{
+  return projection;
 }
 
 void Camera::setCameraPos(glm::vec3 pos)
 {
-  this->cameraPos = pos;
-  this->updateViewMatrix();
+  cameraPos = pos;
+  updateViewMatrix();
 }

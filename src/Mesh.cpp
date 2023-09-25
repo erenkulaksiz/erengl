@@ -4,8 +4,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-#include "Mesh.h"
-#include "Camera.h"
+#include <ErenGL/Mesh.h>
+#include <ErenGL/Camera.h>
 
 Mesh::Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount)
     : position(position), rotation(rotation), scale(scale)
@@ -25,8 +25,6 @@ Mesh::Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *verti
   glEnableVertexAttribArray(0);
 
   glBindVertexArray(0);
-
-  std::cout << "Mesh created" << std::endl;
 }
 
 Mesh::~Mesh()
