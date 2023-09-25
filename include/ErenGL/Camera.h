@@ -17,6 +17,8 @@ public:
   void handleMouse(GLdouble xpos, GLdouble ypos);
   void handleInput();
   void handleScroll(double yoffset);
+  bool isMouseVisible();
+  void setMouseVisible(bool visible);
   glm::mat4 getViewMatrix();
   glm::mat4 getProjectionMatrix();
   void setCameraPos(glm::vec3 pos);
@@ -35,6 +37,7 @@ private:
   float yaw = 0.0f;
   float pitch = 0.0f;
   bool firstMouse = true;
+  bool mouseVisible = false;
   float lastX = SCR_WIDTH / 2.0f;
   float lastY = SCR_HEIGHT / 2.0f;
   glm::mat4 view;

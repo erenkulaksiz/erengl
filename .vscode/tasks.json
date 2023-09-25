@@ -10,7 +10,8 @@
         "-I${workspaceFolder}/include",
         "-L${workspaceFolder}/lib",
         "${workspaceFolder}/src/\\*.cpp",
-        "${workspaceFolder}/src/glad.c",
+        "${workspaceFolder}/src/glad/glad.c",
+        "${workspaceFolder}/src/imgui/*.cpp",
         "-lglfw3dll",
         "-o",
         "${workspaceFolder}/program.exe"

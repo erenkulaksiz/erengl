@@ -10,9 +10,14 @@
 #include <vector>
 #include <ErenGL/Camera.h>
 #include <ErenGL/Mesh.h>
+#include <ErenGL/Gui.h>
 
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
+float fps;
+float deltaTime;
+
+typedef std::vector<Mesh> MeshArray_t;
 
 Camera camera;
 
@@ -82,6 +87,26 @@ unsigned int cubeIndices[] = {
     0,
 };
 
+// triangle
+
+float triangleVertices[] = {
+    -0.5f,
+    -0.5f,
+    0.0f,
+    0.5f,
+    -0.5f,
+    0.0f,
+    0.0f,
+    0.5f,
+    0.0f,
+};
+
+unsigned int triangleIndices[] = {
+    0,
+    1,
+    2,
+};
+
 const char *vertex_shader =
     "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;"
@@ -99,7 +124,7 @@ const char *fragment_shader =
     "out vec4 FragColor;"
     "in vec3 FragPos;"
     "void main() {"
-    "  FragColor = vec4(1.0, 0.0, 0.0, 1.0);"
+    "  FragColor = vec4(1.0, 0.5, 0.0, 1.0);"
     "}";
 
 int main()
@@ -178,45 +203,52 @@ int main()
       glm::vec3(1.0f, 0.0f, 0.0f),
   };
 
+  std::vector<glm::vec3> trianglePositions = {
+      glm::vec3(0.0f, 4.0f, 0.0f),
+  };
+
   /*
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
   */
 
-  IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
-  ImGuiIO &io = ImGui::GetIO();
-  (void)io;
-  ImGui::StyleColorsDark();
-  ImGui_ImplGlfw_InitForOpenGL(window, true);
-  ImGui_ImplOpenGL3_Init("#version 330");
+  Gui gui;
+  MeshArray_t meshes;
 
-  while (!glfwWindowShouldClose(window))
+  for (const glm::vec3 &position : cubePositions)
   {
+    Mesh mesh(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices));
+    meshes.push_back(mesh);
+  }
+
+  for (const glm::vec3 &position : trianglePositions)
+  {
+    Mesh mesh(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), triangleVertices, triangleIndices, sizeof(triangleVertices), sizeof(triangleIndices));
+    meshes.push_back(mesh);
+  }
+
+  while (!glfwWindowShouldClose(glfwGetCurrentContext()))
+  {
+    float currentFrame = glfwGetTime();
+    deltaTime = currentFrame - fps;
+    fps = currentFrame;
+
     camera.handleInput();
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
+    gui.drawStatistics(1.0f / deltaTime, 0);
+    gui.render();
 
     glUseProgram(shader_programme);
 
-    for (const glm::vec3 &position : cubePositions)
+    for (Mesh &mesh : meshes)
     {
-      Mesh mesh(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices));
+      mesh.setup();
       mesh.render(shader_programme, camera);
     }
-
-    ImGui::Begin("Hello, world!");
-    ImGui::Text("This is some useful text.");
-    ImGui::End();
-
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -228,9 +260,12 @@ int main()
     }
   }
 
-  ImGui_ImplOpenGL3_Shutdown();
-  ImGui_ImplGlfw_Shutdown();
-  ImGui::DestroyContext();
+  for (Mesh &mesh : meshes)
+  {
+    mesh.cleanup();
+  }
+
+  gui.shutdown();
 
   glDeleteVertexArrays(1, &cubeVAO);
   glDeleteBuffers(1, &cubeEBO);

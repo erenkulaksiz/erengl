@@ -69,6 +69,12 @@ void Camera::handleInput()
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 
+  if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)
+  {
+    setMouseVisible(!mouseVisible);
+    glfwSetInputMode(window, GLFW_CURSOR, mouseVisible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+  }
+
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
   {
     cameraSpeed = 5.0f;
@@ -79,8 +85,21 @@ void Camera::handleInput()
   }
 }
 
+bool Camera::isMouseVisible()
+{
+  return mouseVisible;
+}
+
+void Camera::setMouseVisible(bool visible)
+{
+  mouseVisible = visible;
+}
+
 void Camera::handleMouse(GLdouble xpos, GLdouble ypos)
 {
+  if (isMouseVisible())
+    return;
+
   if (firstMouse)
   {
     lastX = xpos;

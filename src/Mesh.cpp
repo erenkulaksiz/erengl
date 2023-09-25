@@ -7,8 +7,19 @@
 #include <ErenGL/Mesh.h>
 #include <ErenGL/Camera.h>
 
-Mesh::Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount)
-    : position(position), rotation(rotation), scale(scale)
+Mesh::Mesh(glm::vec3 _position, glm::vec3 _rotation, glm::vec3 _scale, float *_vertices, unsigned int *_indices, size_t _vertexCount, size_t _indexCount)
+    : position(_position), rotation(_rotation), scale(_scale)
+{
+  vertices = _vertices;
+  indices = _indices;
+  vertexCount = _vertexCount;
+  indexCount = _indexCount;
+  position = _position;
+  rotation = _rotation;
+  scale = _scale;
+}
+
+void Mesh::setup()
 {
   glGenVertexArrays(1, &VAO);
   glBindVertexArray(VAO);
@@ -27,11 +38,34 @@ Mesh::Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *verti
   glBindVertexArray(0);
 }
 
-Mesh::~Mesh()
+void Mesh::setPosition(glm::vec3 _position)
 {
-  glDeleteBuffers(1, &VBO);
-  glDeleteBuffers(1, &EBO);
-  glDeleteVertexArrays(1, &VAO);
+  position = _position;
+}
+
+void Mesh::setRotation(glm::vec3 _rotation)
+{
+  rotation = _rotation;
+}
+
+void Mesh::setScale(glm::vec3 _scale)
+{
+  scale = _scale;
+}
+
+glm::vec3 Mesh::getPosition()
+{
+  return position;
+}
+
+glm::vec3 Mesh::getRotation()
+{
+  return rotation;
+}
+
+glm::vec3 Mesh::getScale()
+{
+  return scale;
 }
 
 void Mesh::render(GLuint shaderProgram, Camera camera)
@@ -52,7 +86,7 @@ void Mesh::render(GLuint shaderProgram, Camera camera)
   glUniformMatrix4fv(projectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(camera.getProjectionMatrix()));
 
   glBindVertexArray(VAO);
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+  glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
