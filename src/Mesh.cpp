@@ -20,6 +20,19 @@ Mesh::Mesh(glm::vec3 _position, glm::vec3 _rotation, glm::vec3 _scale, float *_v
   rotation = _rotation;
   scale = _scale;
   shader = &_shader;
+
+  vao = new VAO();
+  vao->Bind();
+
+  VBO VBO(vertices, vertexCount);
+  EBO EBO(indices, indexCount);
+
+  vao->LinkAttrib(VBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
+  vao->LinkAttrib(VBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+  vao->LinkAttrib(VBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+  vao->Unbind();
+  VBO.Unbind();
+  EBO.Unbind();
 }
 
 Mesh::Mesh() : position(glm::vec3(0, 0, 0)), rotation(glm::vec3(0, 0, 0)), scale(glm::vec3(1)), vertices(nullptr), indices(nullptr), vertexCount(0), indexCount(0), shader(0)
@@ -211,27 +224,7 @@ bool Mesh::getIsCamera()
   return isCamera;
 }
 
-void Mesh::setVAO(VAO *_vao)
-{
-  vao = _vao;
-}
-
-void Mesh::setVBO(VBO *_vbo)
-{
-  vbo = _vbo;
-}
-
-void Mesh::setEBO(EBO *_ebo)
-{
-  ebo = _ebo;
-}
-
 void Mesh::setTexture(Texture *_texture)
 {
   texture = _texture;
-}
-
-void Mesh::getVAO(VAO *_vao)
-{
-  _vao = vao;
 }

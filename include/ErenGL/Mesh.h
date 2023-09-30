@@ -23,7 +23,6 @@ class Mesh
 {
 public:
   Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount, Shader &shader);
-  Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount, Shader &shader, Camera &camera);
   Mesh();
   void render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
   void setPosition(glm::vec3 position);
@@ -52,20 +51,12 @@ public:
   void setOnPositionChangeCallback(PositionChangeCallback callback);
   void setOnRotationChangeCallback(RotationChangeCallback callback);
   void setOnScaleChangeCallback(ScaleChangeCallback callback);
-  void setVAO(VAO *vao);
-  void setVBO(VBO *vbo);
-  void setEBO(EBO *ebo);
-  void getVAO(VAO *vao);
-  void getVBO(VBO *vbo);
-  void getEBO(EBO *ebo);
   void setTexture(Texture *texture);
   void getTexture(Texture *texture);
 
 private:
   Texture *texture;
   VAO *vao;
-  VBO *vbo;
-  EBO *ebo;
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;

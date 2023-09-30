@@ -129,20 +129,6 @@ int main()
                         { camera->handleScroll(yoffset); });
 
   Shader texturedShader("shaders/textured.vert", "shaders/textured.frag");
-
-  VAO VAOcube;
-  VAOcube.Bind();
-
-  VBO VBOcube(cubeVertices, sizeof(cubeVertices));
-  EBO EBOcube(cubeIndices, sizeof(cubeIndices));
-
-  VAOcube.LinkAttrib(VBOcube, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
-  VAOcube.LinkAttrib(VBOcube, 1, 3, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-  VAOcube.LinkAttrib(VBOcube, 2, 2, GL_FLOAT, 8 * sizeof(float), (void *)(6 * sizeof(float)));
-  VAOcube.Unbind();
-  VBOcube.Unbind();
-  EBOcube.Unbind();
-
   Texture defaultTexture("resources/default.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
   defaultTexture.texUnit(texturedShader, "tex0", 0);
 
@@ -179,18 +165,15 @@ int main()
   yline.setup(glm::vec3(0.0f, 1.0f, 0.0f));
   zline.setup(glm::vec3(0.0f, 0.0f, 1.0f));
 
-  originXLine.setup(glm::vec3(1.0f, 0.0f, 0.0f));
-  originYLine.setup(glm::vec3(0.0f, 1.0f, 0.0f));
-  originZLine.setup(glm::vec3(0.0f, 0.0f, 1.0f));
+  originXLine.setup(glm::vec3(10.0f, 0.0f, 0.0f));
+  originYLine.setup(glm::vec3(0.0f, 10.0f, 0.0f));
+  originZLine.setup(glm::vec3(0.0f, 0.0f, 10.0f));
 
   for (int index = 0; index < cubePositions.size(); ++index)
   {
     const glm::vec3 &position = cubePositions[index];
     Mesh *mesh = new Mesh(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices), texturedShader);
     mesh->setName("cube " + std::to_string(index));
-    mesh->setVAO(&VAOcube);
-    mesh->setVBO(&VBOcube);
-    mesh->setEBO(&EBOcube);
     mesh->setTexture(&defaultTexture);
     meshes.push_back(mesh);
   }
@@ -287,10 +270,6 @@ int main()
   zline.Delete();
 
   gui.shutdown();
-
-  VAOcube.Delete();
-  VBOcube.Delete();
-  EBOcube.Delete();
 
   texturedShader.Delete();
   glDisable(GL_DEPTH_TEST);
