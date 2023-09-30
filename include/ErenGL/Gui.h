@@ -10,7 +10,7 @@ public:
   Gui();
   void newFrame();
   void render();
-  void drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
+  void drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, float fps, float deltaTime);
   void shutdown();
   void setMouseInteractions(bool value);
   bool mouseInteractions;

@@ -170,7 +170,8 @@ void Mesh::render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
   {
     return;
   }
-
+  vao->Bind();
+  shader->Activate();
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -181,7 +182,11 @@ void Mesh::render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
   shader->SetModel(model);
   shader->SetView(viewMatrix);
   shader->SetProjection(projectionMatrix);
-  shader->SetVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+
+  if (texture)
+    texture->Bind();
+  else
+    shader->SetVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
 
   glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 }
@@ -204,4 +209,29 @@ void Mesh::setIsCamera(bool _isCamera)
 bool Mesh::getIsCamera()
 {
   return isCamera;
+}
+
+void Mesh::setVAO(VAO *_vao)
+{
+  vao = _vao;
+}
+
+void Mesh::setVBO(VBO *_vbo)
+{
+  vbo = _vbo;
+}
+
+void Mesh::setEBO(EBO *_ebo)
+{
+  ebo = _ebo;
+}
+
+void Mesh::setTexture(Texture *_texture)
+{
+  texture = _texture;
+}
+
+void Mesh::getVAO(VAO *_vao)
+{
+  _vao = vao;
 }

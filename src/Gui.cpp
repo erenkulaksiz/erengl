@@ -41,11 +41,18 @@ void Gui::render()
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
+void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, float fps, float deltaTime)
 {
   ImGui::SetNextWindowPos(ImVec2(0, 0));
-
   ImGui::Begin("scene");
+
+  if (ImGui::CollapsingHeader("statistics"))
+  {
+    ImGui::Text("fps: %f", fps);
+    ImGui::Text("deltaTime: %f", deltaTime);
+    ImGui::Text("meshes: %d", meshes->size());
+  }
+
   if (ImGui::CollapsingHeader("world"))
   {
     if (ImGui::BeginListBox("##world", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
@@ -92,6 +99,9 @@ void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 p
       }
       ImGui::EndListBox();
     }
+    if (ImGui::Button("add"))
+    {
+    }
   }
   ImGui::End();
 
@@ -99,22 +109,30 @@ void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 p
   {
     ImGui::Begin("inspector");
 
-    if (ImGui::Button("delete"))
+    if ((*meshes)[selectedMeshIndex]->getIsCamera())
     {
-      if ((*meshes)[selectedMeshIndex]->getCamera()->isActiveCamera())
+      if (!(*meshes)[selectedMeshIndex]->getCamera()->isActiveCamera())
       {
-        std::cout << "cannot delete active camera on the scene" << std::endl;
+        if (ImGui::Button("delete"))
+        {
+          (*meshes)[selectedMeshIndex]->deleteCamera();
+          meshes->erase(meshes->begin() + selectedMeshIndex);
+          selectedMeshIndex = -1;
+          ImGui::End();
+          return;
+        }
+      }
+    }
+    else
+    {
+      if (ImGui::Button("delete"))
+      {
+        (*meshes)[selectedMeshIndex]->deleteCamera();
+        meshes->erase(meshes->begin() + selectedMeshIndex);
+        selectedMeshIndex = -1;
         ImGui::End();
         return;
       }
-      if ((*meshes)[selectedMeshIndex]->getIsCamera())
-      {
-        (*meshes)[selectedMeshIndex]->deleteCamera();
-      }
-      meshes->erase(meshes->begin() + selectedMeshIndex);
-      selectedMeshIndex = -1;
-      ImGui::End();
-      return;
     }
 
     if ((*meshes)[selectedMeshIndex]->getIsCamera())
@@ -148,6 +166,7 @@ void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 p
       (*meshes)[selectedMeshIndex]->setName(meshName);
     }
 
+    ImGui::SeparatorText("transform");
     if (ImGui::DragFloat3("position", positionVec3, 0.1f, -1000.0f, 1000.0f, "%.1f"))
     {
       (*meshes)[selectedMeshIndex]->setPosition(glm::vec3(positionVec3[0], positionVec3[1], positionVec3[2]));

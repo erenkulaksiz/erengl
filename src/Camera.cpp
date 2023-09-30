@@ -196,7 +196,7 @@ void Camera::handleMouse(GLdouble xpos, GLdouble ypos)
   direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
   cameraFront = glm::normalize(direction);
-  mesh->setRotation(glm::vec3(pitch, yaw, 0.0f));
+  mesh->setRotation(glm::vec3(pitch, yaw, 90.0f - yaw));
 
   updateMatrix();
 }

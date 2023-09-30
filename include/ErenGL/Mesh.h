@@ -11,6 +11,7 @@
 #include <ErenGL/VAO.h>
 #include <ErenGL/VBO.h>
 #include <ErenGL/EBO.h>
+#include <ErenGL/Texture.h>
 
 class Camera;
 
@@ -51,8 +52,20 @@ public:
   void setOnPositionChangeCallback(PositionChangeCallback callback);
   void setOnRotationChangeCallback(RotationChangeCallback callback);
   void setOnScaleChangeCallback(ScaleChangeCallback callback);
+  void setVAO(VAO *vao);
+  void setVBO(VBO *vbo);
+  void setEBO(EBO *ebo);
+  void getVAO(VAO *vao);
+  void getVBO(VBO *vbo);
+  void getEBO(EBO *ebo);
+  void setTexture(Texture *texture);
+  void getTexture(Texture *texture);
 
 private:
+  Texture *texture;
+  VAO *vao;
+  VBO *vbo;
+  EBO *ebo;
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;

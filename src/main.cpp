@@ -8,6 +8,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <vector>
+#include <stb/stb_image.h>
+#include <ErenGL/Texture.h>
 #include <ErenGL/Camera.h>
 #include <ErenGL/Mesh.h>
 #include <ErenGL/Gui.h>
@@ -19,79 +21,77 @@
 
 unsigned int SCR_WIDTH = 800;
 unsigned int SCR_HEIGHT = 600;
-float fps;
-float deltaTime;
 std::vector<Mesh *> meshes;
 Camera *camera = new Camera();
 Line xline;
 Line yline;
 Line zline;
 
-float cubeVertices[] = {
-    -0.5f,
-    -0.5f,
-    -0.5f,
-    0.5f,
-    -0.5f,
-    -0.5f,
-    0.5f,
-    0.5f,
-    -0.5f,
-    -0.5f,
-    0.5f,
-    -0.5f,
-    -0.5f,
-    -0.5f,
-    0.5f,
-    0.5f,
-    -0.5f,
-    0.5f,
-    0.5f,
-    0.5f,
-    0.5f,
-    -0.5f,
-    0.5f,
-    0.5f,
+Line originXLine;
+Line originYLine;
+Line originZLine;
+
+GLfloat cubeVertices[] = {
+    -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Front bottom-left
+    0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // Front bottom-right
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,   // Front top-right
+    -0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // Front top-left
+
+    // Back face
+    -0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, // Back bottom-left
+    0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,  // Back bottom-right
+    0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,   // Back top-right
+    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,  // Back top-left
+
+    // Left face
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Left bottom-left
+    -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,  // Left top-left
+    -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,   // Left top-right
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,  // Left bottom-right
+
+    // Right face
+    0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Right bottom-left
+    0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // Right top-left
+    0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // Right top-right
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // Right bottom-right
+
+    // Top face
+    -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, // Top bottom-left
+    0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,  // Top bottom-right
+    0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,   // Top top-right
+    -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f,  // Top top-left
+
+    // Bottom face
+    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, // Bottom bottom-left
+    0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // Bottom bottom-right
+    0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,   // Bottom top-right
+    -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f   // Bottom top-left
 };
 
-unsigned int cubeIndices[] = {
-    0,
-    1,
-    2, // Front
-    2,
-    3,
-    0,
-    4,
-    5,
-    6, // Back
-    6,
-    7,
-    4,
-    0,
-    3,
-    7, // Left
-    7,
-    4,
-    0,
-    1,
-    2,
-    6, // Right
-    6,
-    5,
-    1,
-    3,
-    2,
-    6, // Top
-    6,
-    7,
-    3,
-    0,
-    1,
-    5, // Bottom
-    5,
-    4,
-    0,
-};
+GLuint cubeIndices[] = {
+    // Front face
+    0, 1, 2,
+    2, 3, 0,
+
+    // Back face
+    4, 5, 6,
+    6, 7, 4,
+
+    // Left face
+    8, 9, 10,
+    10, 11, 8,
+
+    // Right face
+    12, 13, 14,
+    14, 15, 12,
+
+    // Top face
+    16, 17, 18,
+    18, 19, 16,
+
+    // Bottom face
+    20, 21, 22,
+    22, 23, 20};
 
 int main()
 {
@@ -128,18 +128,23 @@ int main()
   glfwSetScrollCallback(window, [](GLFWwindow *window, GLdouble xoffset, GLdouble yoffset)
                         { camera->handleScroll(yoffset); });
 
-  Shader shader("shaders/default.vert", "shaders/default.frag");
+  Shader texturedShader("shaders/textured.vert", "shaders/textured.frag");
 
-  VAO VAO1;
-  VAO1.Bind();
+  VAO VAOcube;
+  VAOcube.Bind();
 
-  VBO VBO1(cubeVertices, sizeof(cubeVertices));
-  EBO EBO1(cubeIndices, sizeof(cubeIndices));
+  VBO VBOcube(cubeVertices, sizeof(cubeVertices));
+  EBO EBOcube(cubeIndices, sizeof(cubeIndices));
 
-  VAO1.LinkVBO(VBO1, 0);
-  VAO1.Unbind();
-  VBO1.Unbind();
-  EBO1.Unbind();
+  VAOcube.LinkAttrib(VBOcube, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
+  VAOcube.LinkAttrib(VBOcube, 1, 3, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
+  VAOcube.LinkAttrib(VBOcube, 2, 2, GL_FLOAT, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+  VAOcube.Unbind();
+  VBOcube.Unbind();
+  EBOcube.Unbind();
+
+  Texture defaultTexture("resources/default.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+  defaultTexture.texUnit(texturedShader, "tex0", 0);
 
   Gui gui;
 
@@ -174,20 +179,29 @@ int main()
   yline.setup(glm::vec3(0.0f, 1.0f, 0.0f));
   zline.setup(glm::vec3(0.0f, 0.0f, 1.0f));
 
+  originXLine.setup(glm::vec3(1.0f, 0.0f, 0.0f));
+  originYLine.setup(glm::vec3(0.0f, 1.0f, 0.0f));
+  originZLine.setup(glm::vec3(0.0f, 0.0f, 1.0f));
+
   for (int index = 0; index < cubePositions.size(); ++index)
   {
     const glm::vec3 &position = cubePositions[index];
-    Mesh *mesh = new Mesh(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices), shader);
+    Mesh *mesh = new Mesh(position, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), cubeVertices, cubeIndices, sizeof(cubeVertices), sizeof(cubeIndices), texturedShader);
     mesh->setName("cube " + std::to_string(index));
+    mesh->setVAO(&VAOcube);
+    mesh->setVBO(&VBOcube);
+    mesh->setEBO(&EBOcube);
+    mesh->setTexture(&defaultTexture);
     meshes.push_back(mesh);
   }
 
+  float previousFrame = glfwGetTime();
+  float fps;
+  float deltaTime;
+  float currentFrame;
+
   while (!glfwWindowShouldClose(glfwGetCurrentContext()))
   {
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - fps;
-    fps = currentFrame;
-
     if (!camera->isActiveCamera())
     {
       std::cout << "our main cam is not active" << std::endl;
@@ -217,8 +231,6 @@ int main()
 
     for (Mesh *mesh : meshes)
     {
-      shader.Activate();
-      VAO1.Bind();
       mesh->render(camera->getViewMatrix(), camera->getProjectionMatrix());
     }
 
@@ -245,8 +257,20 @@ int main()
       }
     }
 
+    originXLine.setColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    originYLine.setColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    originZLine.setColor(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    originXLine.render(camera->getViewMatrix(), camera->getProjectionMatrix());
+    originYLine.render(camera->getViewMatrix(), camera->getProjectionMatrix());
+    originZLine.render(camera->getViewMatrix(), camera->getProjectionMatrix());
+
+    currentFrame = glfwGetTime();
+    deltaTime = currentFrame - previousFrame;
+    previousFrame = currentFrame;
+    fps = 1.0f / deltaTime;
+
     gui.newFrame();
-    gui.drawGui(&meshes, camera->getViewMatrix(), camera->getProjectionMatrix());
+    gui.drawGui(&meshes, camera->getViewMatrix(), camera->getProjectionMatrix(), fps, deltaTime);
     gui.render();
 
     glfwSwapBuffers(window);
@@ -263,10 +287,12 @@ int main()
   zline.Delete();
 
   gui.shutdown();
-  VAO1.Delete();
-  VBO1.Delete();
-  EBO1.Delete();
-  shader.Delete();
+
+  VAOcube.Delete();
+  VBOcube.Delete();
+  EBOcube.Delete();
+
+  texturedShader.Delete();
   glDisable(GL_DEPTH_TEST);
 
   glfwTerminate();
