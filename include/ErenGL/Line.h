@@ -8,13 +8,12 @@
 class Line
 {
 public:
-  Line();
+  Line(glm::vec3 end);
   ~Line();
   void Delete();
   void setPosition(glm::vec3 _position);
   void setRotation(glm::vec3 _rotation);
   void setColor(glm::vec4 _color);
-  void setup(glm::vec3 end);
   void render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
 
 private:

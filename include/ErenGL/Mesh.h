@@ -24,13 +24,19 @@ class Mesh
 public:
   Mesh(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, float *vertices, unsigned int *indices, size_t vertexCount, size_t indexCount, Shader &shader);
   Mesh();
-  void render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix);
+  void render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Camera *_camera);
   void setPosition(glm::vec3 position);
   void setRotation(glm::vec3 rotation);
   void setScale(glm::vec3 scale);
   void setName(std::string name);
   void setIsSelected(bool selected);
   void setIsCamera(bool isCamera);
+  void setColor(glm::vec4 color);
+  void setIsLightSource(bool isLightSource);
+  void setLightSourceColor(glm::vec4 color);
+  bool getIsLightSource();
+  glm::vec4 getColor();
+  glm::vec4 getLightSourceColor();
   bool getIsCamera();
   bool getCameraDeleted();
   void setCamera(Camera &camera);
@@ -53,13 +59,20 @@ public:
   void setOnScaleChangeCallback(ScaleChangeCallback callback);
   void setTexture(Texture *texture);
   void getTexture(Texture *texture);
+  void setLightPos(glm::vec3 lightPos);
+  glm::vec3 getLightPos();
 
 private:
   Texture *texture;
   VAO *vao;
+  VBO *vbo;
+  EBO *ebo;
+  glm::vec3 lightPos;
   glm::vec3 position;
   glm::vec3 rotation;
   glm::vec3 scale;
+  glm::vec4 color;
+  glm::vec4 lightColor;
   float *vertices;
   unsigned int *indices;
   size_t vertexCount;
@@ -68,6 +81,8 @@ private:
   bool selectedMesh = false; // Is user selected this mesh from menu?
   bool isCamera = false;     // Is this mesh a camera?
   bool cameraDeleted = false;
+  bool hasTexture = false;    // is element has texture?
+  bool isLightSource = false; // is element a light source?
   Shader *shader;
   Camera *camera;
 };

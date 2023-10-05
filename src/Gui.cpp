@@ -8,6 +8,7 @@
 #include <ErenGL/Gui.h>
 #include <ErenGL/Mesh.h>
 #include <ErenGL/Camera.h>
+#include <ErenGL/App.h>
 
 Gui::Gui()
 {
@@ -41,20 +42,37 @@ void Gui::render()
   ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, float fps, float deltaTime)
+void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 projectionMatrix, float fps, float deltaTime, bool *isPlaying)
 {
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   ImGui::Begin("scene");
 
+  if (ImGui::Button(*isPlaying ? "pause" : "play"))
+  {
+    *isPlaying = !*isPlaying;
+  }
+
   if (ImGui::CollapsingHeader("statistics"))
   {
     ImGui::Text("fps: %f", fps);
-    ImGui::Text("deltaTime: %f", deltaTime);
+    ImGui::Text("deltaTime: %f", deltaTime * 1000.0f);
     ImGui::Text("meshes: %d", meshes->size());
   }
 
   if (ImGui::CollapsingHeader("world"))
   {
+    static bool glLineRenderer = false;
+    ImGui::Checkbox("Render as Line", &glLineRenderer);
+
+    if (glLineRenderer)
+    {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+      glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
     if (ImGui::BeginListBox("##world", ImVec2(-FLT_MIN, 5 * ImGui::GetTextLineHeightWithSpacing())))
     {
       for (int i = 0; i < meshes->size(); i++)
@@ -133,6 +151,12 @@ void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 p
         ImGui::End();
         return;
       }
+    }
+
+    if ((*meshes)[selectedMeshIndex]->getIsLightSource())
+    {
+      ImGui::SameLine();
+      ImGui::Text("light source");
     }
 
     if ((*meshes)[selectedMeshIndex]->getIsCamera())

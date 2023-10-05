@@ -72,6 +72,26 @@ void Shader::SetVec4(const char *name, glm::vec4 value)
   glUniform4fv(glGetUniformLocation(ID, name), 1, glm::value_ptr(value));
 }
 
+void Shader::SetColor(glm::vec4 color)
+{
+  glUniform4fv(glGetUniformLocation(ID, "color"), 1, glm::value_ptr(color));
+}
+
+void Shader::SetCameraPos(glm::vec3 pos)
+{
+  glUniform3fv(glGetUniformLocation(ID, "camPos"), 1, glm::value_ptr(pos));
+}
+
+void Shader::SetLightColor(glm::vec4 color)
+{
+  glUniform4fv(glGetUniformLocation(ID, "lightColor"), 1, glm::value_ptr(color));
+}
+
+void Shader::SetLightPos(glm::vec3 pos)
+{
+  glUniform3fv(glGetUniformLocation(ID, "lightPos"), 1, glm::value_ptr(pos));
+}
+
 void Shader::Activate()
 {
   glUseProgram(ID);

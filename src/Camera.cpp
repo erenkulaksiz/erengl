@@ -76,12 +76,8 @@ void Camera::setFov(float _fov)
   updateMatrix();
 }
 
-void Camera::handleInput()
+void Camera::handleInput(float deltaTime)
 {
-  currentFrame = glfwGetTime();
-  deltaTime = currentFrame - lastFrame;
-  lastFrame = currentFrame;
-
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
   {
     if (isMouseVisible())
@@ -138,7 +134,13 @@ void Camera::handleInput()
   {
     cameraSpeed = 5.0f;
   }
-  else
+
+  if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+  {
+    cameraSpeed = 1.0f;
+  }
+
+  if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) != GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) != GLFW_PRESS)
   {
     cameraSpeed = 2.5f;
   }

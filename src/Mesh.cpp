@@ -24,15 +24,16 @@ Mesh::Mesh(glm::vec3 _position, glm::vec3 _rotation, glm::vec3 _scale, float *_v
   vao = new VAO();
   vao->Bind();
 
-  VBO VBO(vertices, vertexCount);
-  EBO EBO(indices, indexCount);
+  vbo = new VBO(vertices, vertexCount);
+  ebo = new EBO(indices, indexCount);
 
-  vao->LinkAttrib(VBO, 0, 3, GL_FLOAT, 8 * sizeof(float), (void *)0);
-  vao->LinkAttrib(VBO, 1, 3, GL_FLOAT, 8 * sizeof(float), (void *)(3 * sizeof(float)));
-  vao->LinkAttrib(VBO, 2, 2, GL_FLOAT, 8 * sizeof(float), (void *)(6 * sizeof(float)));
+  vao->LinkAttrib(*vbo, 0, 3, GL_FLOAT, 11 * sizeof(float), (void *)0);
+  vao->LinkAttrib(*vbo, 1, 3, GL_FLOAT, 11 * sizeof(float), (void *)(3 * sizeof(float)));
+  vao->LinkAttrib(*vbo, 2, 2, GL_FLOAT, 11 * sizeof(float), (void *)(6 * sizeof(float)));
+  vao->LinkAttrib(*vbo, 3, 3, GL_FLOAT, 11 * sizeof(float), (void *)(8 * sizeof(float)));
   vao->Unbind();
-  VBO.Unbind();
-  EBO.Unbind();
+  vbo->Unbind();
+  ebo->Unbind();
 }
 
 Mesh::Mesh() : position(glm::vec3(0, 0, 0)), rotation(glm::vec3(0, 0, 0)), scale(glm::vec3(1)), vertices(nullptr), indices(nullptr), vertexCount(0), indexCount(0), shader(0)
@@ -177,7 +178,7 @@ glm::vec3 Mesh::getUp()
   return glm::vec3(up.x, up.y, up.z);
 }
 
-void Mesh::render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
+void Mesh::render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Camera *_camera)
 {
   if (isCamera)
   {
@@ -185,6 +186,7 @@ void Mesh::render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
   }
   vao->Bind();
   shader->Activate();
+
   glm::mat4 model = glm::mat4(1.0f);
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -196,10 +198,14 @@ void Mesh::render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix)
   shader->SetView(viewMatrix);
   shader->SetProjection(projectionMatrix);
 
-  if (texture)
+  if (hasTexture)
+  {
     texture->Bind();
-  else
-    shader->SetVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+  }
+
+  shader->SetLightPos(lightPos);
+  shader->SetLightColor(lightColor);
+  shader->SetCameraPos(_camera->getMesh()->getPosition());
 
   glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 }
@@ -227,4 +233,40 @@ bool Mesh::getIsCamera()
 void Mesh::setTexture(Texture *_texture)
 {
   texture = _texture;
+  hasTexture = true;
+}
+
+void Mesh::setColor(glm::vec4 _color)
+{
+  color = _color;
+}
+
+glm::vec4 Mesh::getColor()
+{
+  return color;
+}
+
+bool Mesh::getIsLightSource()
+{
+  return isLightSource;
+}
+
+void Mesh::setIsLightSource(bool _isLightSource)
+{
+  isLightSource = _isLightSource;
+}
+
+void Mesh::setLightSourceColor(glm::vec4 _color)
+{
+  lightColor = _color;
+}
+
+void Mesh::setLightPos(glm::vec3 _lightPos)
+{
+  lightPos = _lightPos;
+}
+
+glm::vec3 Mesh::getLightPos()
+{
+  return lightPos;
 }

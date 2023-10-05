@@ -24,7 +24,7 @@ public:
   void updateProjectionMatrix();
   void updateMatrix();
   void handleMouse(GLdouble xpos, GLdouble ypos);
-  void handleInput();
+  void handleInput(float deltaTime);
   void handleScroll(double yoffset);
   void setMouseVisible(bool visible);
   void setCameraPos(glm::vec3 pos);
@@ -57,9 +57,6 @@ private:
   glm::mat4 projection;
   glm::vec3 cameraUp;
   glm::vec3 cameraFront;
-  float currentFrame;
-  float deltaTime;
-  float lastFrame;
   Mesh *mesh;
 };
 

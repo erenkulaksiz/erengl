@@ -24,6 +24,10 @@ public:
   void SetView(glm::mat4 view);
   void SetProjection(glm::mat4 projection);
   void SetVec4(const char *name, glm::vec4 value);
+  void SetColor(glm::vec4 color);
+  void SetLightColor(glm::vec4 color);
+  void SetLightPos(glm::vec3 pos);
+  void SetCameraPos(glm::vec3 pos);
   GLuint GetId();
 
 private:
