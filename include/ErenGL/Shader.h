@@ -28,6 +28,7 @@ public:
   void SetLightColor(glm::vec4 color);
   void SetLightPos(glm::vec3 pos);
   void SetCameraPos(glm::vec3 pos);
+  void SetBillboardPos(glm::vec3 pos);
   GLuint GetId();
 
 private:

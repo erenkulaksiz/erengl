@@ -133,6 +133,7 @@ App::App()
   camera = new Camera();
 
   Shader texturedShader("shaders/default_light.vert", "shaders/default_light.frag");
+  Shader billboardShader("shaders/billboard.vert", "shaders/billboard.frag");
   Shader bulldogErenShader("shaders/textured.vert", "shaders/textured.frag");
   Texture defaultTexture("resources/default3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
   Texture bulldogErenTexture("resources/default2.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
@@ -140,6 +141,9 @@ App::App()
   bulldogErenTexture.texUnit(bulldogErenShader, "tex0", 0);
 
   Shader lightShader("shaders/light.vert", "shaders/light.frag");
+
+  Texture defaultBillboardTexture("resources/default3.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGBA, GL_UNSIGNED_BYTE);
+  defaultBillboardTexture.texUnit(billboardShader, "tex0", 0);
 
   gui = new Gui();
 
@@ -216,6 +220,12 @@ App::App()
   lightMesh->setOnPositionChangeCallback([this](glm::vec3 position)
                                          { lightPos = position; });
   meshes.push_back(lightMesh);
+
+  Mesh *mesh_billboard = new Mesh(glm::vec3(5.0f, 3.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f), planeVertices, planeIndices, sizeof(planeVertices), sizeof(planeIndices), billboardShader);
+  mesh_billboard->setName("mesh_billboard");
+  mesh_billboard->setTexture(&defaultBillboardTexture);
+  mesh_billboard->setIsBillboard(true);
+  meshes.push_back(mesh_billboard);
 
   previousFrame = glfwGetTime();
 

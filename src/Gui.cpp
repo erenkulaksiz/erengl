@@ -62,7 +62,7 @@ void Gui::drawGui(std::vector<Mesh *> *meshes, glm::mat4 viewMatrix, glm::mat4 p
   if (ImGui::CollapsingHeader("world"))
   {
     static bool glLineRenderer = false;
-    ImGui::Checkbox("Render as Line", &glLineRenderer);
+    ImGui::Checkbox("Wireframe", &glLineRenderer);
 
     if (glLineRenderer)
     {

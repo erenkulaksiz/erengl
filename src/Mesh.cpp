@@ -203,9 +203,18 @@ void Mesh::render(glm::mat4 viewMatrix, glm::mat4 projectionMatrix, Camera *_cam
     texture->Bind();
   }
 
-  shader->SetLightPos(lightPos);
-  shader->SetLightColor(lightColor);
   shader->SetCameraPos(_camera->getMesh()->getPosition());
+
+  if (!isBillboard)
+  {
+    shader->SetLightPos(lightPos);
+    shader->SetLightColor(lightColor);
+  }
+
+  if (isBillboard)
+  {
+    shader->SetBillboardPos(position);
+  }
 
   glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
 }
@@ -269,4 +278,9 @@ void Mesh::setLightPos(glm::vec3 _lightPos)
 glm::vec3 Mesh::getLightPos()
 {
   return lightPos;
+}
+
+void Mesh::setIsBillboard(bool _isBillboard)
+{
+  isBillboard = _isBillboard;
 }

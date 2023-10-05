@@ -92,6 +92,11 @@ void Shader::SetLightPos(glm::vec3 pos)
   glUniform3fv(glGetUniformLocation(ID, "lightPos"), 1, glm::value_ptr(pos));
 }
 
+void Shader::SetBillboardPos(glm::vec3 pos)
+{
+  glUniform3fv(glGetUniformLocation(ID, "billboardPos"), 1, glm::value_ptr(pos));
+}
+
 void Shader::Activate()
 {
   glUseProgram(ID);

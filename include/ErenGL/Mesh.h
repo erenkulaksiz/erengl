@@ -34,7 +34,9 @@ public:
   void setColor(glm::vec4 color);
   void setIsLightSource(bool isLightSource);
   void setLightSourceColor(glm::vec4 color);
+  void setIsBillboard(bool isBillboard);
   bool getIsLightSource();
+  bool getIsBillboard();
   glm::vec4 getColor();
   glm::vec4 getLightSourceColor();
   bool getIsCamera();
@@ -83,6 +85,7 @@ private:
   bool cameraDeleted = false;
   bool hasTexture = false;    // is element has texture?
   bool isLightSource = false; // is element a light source?
+  bool isBillboard = false;   // is element a billboard?
   Shader *shader;
   Camera *camera;
 };
